@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Вход</title>
+
+    <link rel="stylesheet" href="{% static 'libs/bootstrap-4.3.1-dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'libs/bootstrap-4.3.1-dist/css/bootstrap-reboot.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+</head>
+<body>
+
+    <div class="container">
+        <div class="col-md-4 offset-4">
+            <form class="login-form" action="" method="post">
+                {% csrf_token %}
+                <h3>Войдите в свой аккаунт</h3>
+                <label for="id_username">{{ login_form.username.label }}</label>
+                <br>
+                {{ login_form.username }}
+                <br>
+                <label for="id_password">{{ login_form.password.label }}</label>
+                <br>
+                {{ login_form.password }}
+                <br>
+                <button class="btn btn-block btn-dark login-submit-btn" type="submit">Войти</button>
+                <a class="nav-link" href="{% url 'registration' %}">Регистрация</a>
+                {{ login_form.non_field_errors }}
+            </form>
+        </div>
+    </div>
+
+
+
+</body>
+</html>

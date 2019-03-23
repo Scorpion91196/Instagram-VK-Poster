@@ -1,0 +1,124 @@
+{% extends 'index.html' %}
+
+{% block content %}
+
+    <div class="container">
+    <h3>Настройки профиля</h3>
+        <br>
+        <div class="settings-now">
+            <div class="row">
+                <div class="col-md-3 offset-3 setting-title"><p>Логин Instagram:</p></div>
+                {% if user_settings.insta_login != 'None' and user_settings.insta_login != '' %}
+                    <div class="col-md-3 setting-value"><p><strong>{{ user_settings.insta_login }}</strong></p></div>
+                {% else %}
+                    <div class="col-md-3 setting-value"><p><strong>Нет данных</strong></p></div>
+                {% endif %}
+            </div>
+            <div class="row">
+                <div class="col-md-3 offset-3 setting-title"><p>Пароль Instagram:</p></div>
+                {% if user_settings.insta_password != 'None' and user_settings.insta_password != '' %}
+                    <div class="col-md-3 setting-value"><p><strong>{{ user_settings.insta_password }}</strong></p></div>
+                {% else %}
+                <div class="col-md-3 setting-value"><p><strong>Нет данных</strong></p></div>
+                {% endif %}
+            </div>
+            <div class="row">
+                <div class="col-md-3 offset-3 setting-title"><p>Логин VK:</p></div>
+                {% if user_settings.vk_login != 'None' and user_settings.vk_login != '' %}
+                    <div class="col-md-3 setting-value"><p><strong>{{ user_settings.vk_login }}</strong></p></div>
+                {% else %}
+                    <div class="col-md-3 setting-value"><p><strong>Нет данных</strong></p></div>
+                {% endif %}
+            </div>
+            <div class="row">
+                <div class="col-md-3 offset-3 setting-title"><p>Пароль VK:</p></div>
+                {% if user_settings.vk_password != 'None' and user_settings.vk_password != '' %}
+                    <div class="col-md-3 setting-value"><p><strong>{{ user_settings.vk_password }}</strong></p></div>
+                {% else %}
+                    <div class="col-md-3 setting-value"><p><strong>Нет данных</strong></p></div>
+                {% endif %}
+            </div>
+            <div class="row">
+                <div class="col-md-3 offset-3 setting-title"><p>Token VK:</p></div>
+                {% if user_settings.vk_token != 'None' and user_settings.vk_token != '' %}
+                    <div class="col-md-3 setting-value"><p><strong>{{ user_settings.vk_token }}</strong></p></div>
+                {% else %}
+                    <div class="col-md-3 setting-value"><p><strong>Нет данных</strong></p></div>
+                {% endif %}
+            </div>
+            <div class="row">
+                <div class="col-md-3 offset-3 setting-title"><p>VK_App_ID:</p></div>
+                {% if user_settings.vk_app != 'None' and user_settings.vk_app != '' %}
+                    <div class="col-md-3 setting-value"><p><strong>{{ user_settings.vk_app }}</strong></p></div>
+                {% else %}
+                    <div class="col-md-3 setting-value"><p><strong>Нет данных</strong></p></div>
+                {% endif %}
+            </div>
+            <div class="row">
+                <div class="col-md-3 offset-3 setting-title"><p>ID группы VK:</p></div>
+                {% if user_settings.vk_group_id != 'None' and user_settings.vk_group_id != '' %}
+                    <div class="col-md-3 setting-value"><p><strong>{{ user_settings.vk_group_id }}</strong></p></div>
+                {% else %}
+                    <div class="col-md-3 setting-value"><p><strong>Нет данных</strong></p></div>
+                {% endif %}
+            </div>
+            <button type="button" class="btn btn-outline-primary change-settings">Изменить</button>
+        </div>
+
+        <div class="settings_form_wrap d-none">
+            <form class="settings-form" action="" method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-3 offset-2"><label for="id_insta_login">Логин Instagram: </label></div>
+                    <div class="col-md-3">{{ settings_form.insta_login }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 offset-2"><label for="id_insta_password">Пароль Instagram: </label></div>
+                    <div class="col-md-3">{{ settings_form.insta_password }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 offset-2"><label for="id_vk_login">Логин VK: </label></div>
+                    <div class="col-md-3">{{ settings_form.vk_login }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 offset-2"><label for="id_vk_password">Пароль VK: </label></div>
+                    <div class="col-md-3">{{ settings_form.vk_password }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 offset-2"><label for="id_vk_token">Token VK: </label></div>
+                    <div class="col-md-3">{{ settings_form.vk_token }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 offset-2"><label for="id_vk_app">VK_App_ID: </label></div>
+                    <div class="col-md-3">{{ settings_form.vk_app }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 offset-2"><label for="id_vk_group_id">ID группы VK: </label></div>
+                    <div class="col-md-3">{{ settings_form.vk_group_id }}</div>
+                </div>
+                <br>
+                <div class="col-md-3 offset-4">
+                    <button class="btn btn-block btn-primary" type="submit">Сохранить</button>
+                </div>
+            </form>
+            <br>
+            <div class="row">
+                <div class="col-md-3 offset-4">
+                    <button class="btn btn-block btn-outline-primary change-settings">Отмена</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}
+{% block custom_js %}
+    <script>
+    $(document).ready(function () {
+        $(".change-settings").click(function () {
+            $(".settings_form_wrap").toggleClass('d-none');
+            $(".settings-now").toggleClass('d-none')
+        })
+    })
+    </script>
+{% endblock %}

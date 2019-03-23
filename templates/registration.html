@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+
+    <link rel="stylesheet" href="{% static 'libs/bootstrap-4.3.1-dist/css/bootstrap-reboot.min.css' %}">
+    <link rel="stylesheet" href="{% static 'libs/bootstrap-4.3.1-dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+
+    <div class="container">
+        <div class="col-md-4 offset-4">
+            <form class="login-form" action="" method="post">
+                {% csrf_token %}
+                <h3>Регистрация</h3>
+                <label for="id_username">{{ registration_form.username.label }}</label>
+                <br>
+                {{ registration_form.username }}
+                <br>
+                <label for="id_password">{{ registration_form.email.label }}</label>
+                <br>
+                {{ registration_form.email }}
+                <br>
+                <label for="id_password">{{ registration_form.password.label }}</label>
+                <br>
+                {{ registration_form.password }}
+                <br>
+                <label for="id_password">{{ registration_form.password_check.label }}</label>
+                <br>
+                {{ registration_form.password_check }}
+                <br>
+
+                <button class="btn btn-block btn-dark login-submit-btn" type="submit">Зарегистрироваться</button>
+                <a class="nav-link" href="{% url 'login' %}">Войти</a>
+                {{ registration_form.non_field_errors }}
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

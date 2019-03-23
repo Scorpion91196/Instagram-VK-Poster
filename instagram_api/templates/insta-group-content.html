@@ -1,0 +1,115 @@
+{% extends 'index.html' %}
+
+{% block content %}
+<div class="options-bar">
+    <div class="first_post_now">
+        <label for="first_post_now"><strong>Первый пост сразу </strong></label>
+        <input id="first_post_now" type="checkbox">
+    </div>
+    <div class="post_description">
+        <label for="post_description"><strong>Описание </strong></label>
+        <input id="post_description" type="checkbox">
+    </div>
+    <div class="interval">
+        <label for="interval"><strong>Интервал: </strong></label>
+        <input id="interval" name="interval" type="number" value="0" placeholder="Минуты">
+    </div>
+    <button id="send-selected-btn" type="button" class="btn btn-danger">Запостить</button>
+</div>
+
+<div class="items">
+{% for post in posts %}
+    <div class="insta-item">
+        <div class="item-date" {% if post.date == 'Сегодня' %} style="color: rgb(255,0,0); font-style: normal; font-weight: bold" {% endif %}>{{ post.date }}</div>
+        <div class="item-img">
+            <img src="{{ post.display_url }}" alt="{{ post.caption }}">
+        </div>
+        <div class="item-descr">
+            {% if post.caption %}
+            <p>{{ post.caption|truncatechars:50 }}</p>
+            {% else %}
+                <p>Описания к фото нет</p>
+            {% endif %}
+        </div>
+    </div>
+{% endfor %}
+</div>
+
+{% endblock %}
+
+{% block custom_js %}
+    <script>
+    $(document).ready(function () {
+        $.ajaxSetup({
+             beforeSend: function(xhr, settings) {
+                 function getCookie(name) {
+                     var cookieValue = null;
+                     if (document.cookie && document.cookie != '') {
+                         var cookies = document.cookie.split(';');
+                         for (var i = 0; i < cookies.length; i++) {
+                             var cookie = jQuery.trim(cookies[i]);
+                             // Does this cookie string begin with the name we want?
+                             if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                 break;
+                             }
+                         }
+                     }
+                     return cookieValue;
+                 }
+                 if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                     // Only send the token to relative URLs i.e. locally.
+                     xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                 }
+             }
+        });
+
+        $(".insta-item").click(function () {
+            $(this).toggleClass('selected-item')
+        });
+
+        $('#send-selected-btn').click(function () {
+            let ready_items = [];
+            let items = document.querySelectorAll('.selected-item');
+            let post_description = $('#post_description').prop('checked');
+            for(let i=0; i<items.length; i++){
+                let item_descr = items[i].children[2].children[0].innerHTML;
+                if (item_descr != "Описания к фото нет" && post_description == true){
+                    item_descr = items[i].children[1].children[0].getAttribute('alt')
+                }
+                else {
+                    item_descr = ''
+                }
+                ready_items.push({
+                    'link': items[i].children[1].children[0].getAttribute('src'),
+                    'descr': item_descr
+                });
+            }
+
+            if (ready_items.length){
+                let first_post_now = $('#first_post_now').prop('checked');
+                let interval = $('#interval').val();
+                let prepared_data = {
+                    'ready_items': JSON.stringify(ready_items),
+                    'first_post_now': first_post_now,
+                    'post_description': post_description,
+                    'interval': interval
+                };
+                $.ajax({
+                    url: '{% url 'send-posts' %}',
+                    dataType: 'json',
+                    data: prepared_data,
+                    method: 'POST',
+                })
+            }
+            else {
+                alert("Вы не выбрали ни одного поста")
+            }
+            {#console.log($('.insta-item.selected .item-img img').attr('src'))#}
+        })
+
+        //Удаление группы из списка
+
+    })
+    </script>
+{% endblock %}
