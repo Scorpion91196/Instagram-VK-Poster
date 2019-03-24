@@ -18,7 +18,6 @@ class MainPageView(View):
     def get(self, request, *args, **kwargs):
         if request.GET.get('add_insta_group') and request.GET.get('add_insta_group') != '':
             insta_name = request.GET.get('add_insta_group')
-            print(insta_name)
             new_insta_group = InstaGroup.objects.create(name=insta_name)
             new_insta_group.save()
             request.user.user_settings.insta_group_list.add(new_insta_group)
@@ -107,7 +106,6 @@ class SendPosts(View):
         vk_session.auth()
         vk = vk_session.get_api()
         upload_settings = vk.photos.getWallUploadServer(group_id=user_settings.vk_group_id)
-        print(ready_items, first_post_now, post_description, type(interval))
 
         if first_post_now and interval != 0:
             img_response = requests.get(ready_items[0]['link'])
@@ -135,7 +133,6 @@ class SendPosts(View):
                                      attachments='photo'+str(saved_photo[0]['owner_id'])+'_'+str(saved_photo[0]['id']))
                         count += 1
         elif not first_post_now and interval != 0:
-            print("Все посты постим с интервалом "+str(interval)+" мин.")
             count = 1
             for item in ready_items:
                 img_response = requests.get(item['link'])
@@ -153,7 +150,6 @@ class SendPosts(View):
                                      saved_photo[0]['id']))
                     count += 1
         else:
-            print("Постим все сразу!!!")
             for item in ready_items:
                 img_response = requests.get(item['link'])
                 if img_response.ok:
