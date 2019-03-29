@@ -99,13 +99,17 @@ class SendPosts(View):
         user_settings = request.user.user_settings
         ready_items = json.loads(self.request.POST.get('ready_items'))
         first_post_now = json.loads(self.request.POST.get('first_post_now'))
-        post_description = json.loads(self.request.POST.get('post_description'))
         interval = json.loads(self.request.POST.get('interval'))
 
         vk_session = vk_api.VkApi(user_settings.vk_login, user_settings.vk_password, user_settings.vk_token, app_id=user_settings.vk_app)
         vk_session.auth()
         vk = vk_session.get_api()
         upload_settings = vk.photos.getWallUploadServer(group_id=user_settings.vk_group_id)
+        posts_in_future = vk.wall.get(owner_id='-'+user_settings.vk_group_id, filter='postponed')
+        try:
+            last_post_date = int(posts_in_future['items'][-1]['date'])
+        except IndexError:
+            last_post_date = 0
 
         if first_post_now and interval != 0:
             img_response = requests.get(ready_items[0]['link'])
@@ -120,24 +124,32 @@ class SendPosts(View):
                              attachments='photo' + str(saved_photo[0]['owner_id']) + '_' + str(saved_photo[0]['id']))
             if len(ready_items) > 1:
                 count = 1
+                timenow = int(time.time())
+                if last_post_date == 0:
+                    publish_date = str(timenow + interval * 60 * count)
+                else:
+                    publish_date = str(last_post_date + interval * 60 * count)
                 for item in ready_items[1:]:
                     img_response = requests.get(item['link'])
                     if img_response.ok:
-                        timenow = int(time.time())
                         vk_photo_response = requests.post(upload_settings['upload_url'], files={'photo': ('file.jpg', BytesIO(img_response.content), 'image/jpg')})
                         saved_photo = vk.photos.saveWallPhoto(group_id=user_settings.vk_group_id,
                                                               photo=vk_photo_response.json()['photo'],
                                                               server=vk_photo_response.json()['server'],
                                                               hash=vk_photo_response.json()['hash'])
-                        vk.wall.post(owner_id='-'+user_settings.vk_group_id, message=item['descr'], from_group='1', publish_date=str(timenow+interval*60*count),
+                        vk.wall.post(owner_id='-'+user_settings.vk_group_id, message=item['descr'], from_group='1', publish_date=publish_date,
                                      attachments='photo'+str(saved_photo[0]['owner_id'])+'_'+str(saved_photo[0]['id']))
                         count += 1
         elif not first_post_now and interval != 0:
             count = 1
+            timenow = int(time.time())
             for item in ready_items:
+                if last_post_date == 0:
+                    publish_date = str(timenow + interval * 60 * count)
+                else:
+                    publish_date = str(last_post_date + interval * 60 * count)
                 img_response = requests.get(item['link'])
                 if img_response.ok:
-                    timenow = int(time.time())
                     vk_photo_response = requests.post(upload_settings['upload_url'], files={
                         'photo': ('file.jpg', BytesIO(img_response.content), 'image/jpg')})
                     saved_photo = vk.photos.saveWallPhoto(group_id=user_settings.vk_group_id,
@@ -145,7 +157,7 @@ class SendPosts(View):
                                                           server=vk_photo_response.json()['server'],
                                                           hash=vk_photo_response.json()['hash'])
                     vk.wall.post(owner_id='-' + user_settings.vk_group_id, message=item['descr'], from_group='1',
-                                 publish_date=str(timenow + interval * 60 * count),
+                                 publish_date=publish_date,
                                  attachments='photo' + str(saved_photo[0]['owner_id']) + '_' + str(
                                      saved_photo[0]['id']))
                     count += 1
@@ -161,7 +173,7 @@ class SendPosts(View):
                     vk.wall.post(owner_id='-'+user_settings.vk_group_id, message=item['descr'], from_group='1',
                                  attachments='photo'+str(saved_photo[0]['owner_id'])+'_'+str(saved_photo[0]['id']))
 
-        return JsonResponse({'response': 'success'})
+        return JsonResponse({'status': 'false'})
 
 
 class LoginView(View):
