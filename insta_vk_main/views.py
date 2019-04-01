@@ -125,11 +125,11 @@ class SendPosts(View):
             if len(ready_items) > 1:
                 count = 1
                 timenow = int(time.time())
-                if last_post_date == 0:
-                    publish_date = str(timenow + interval * 60 * count)
-                else:
-                    publish_date = str(last_post_date + interval * 60 * count)
                 for item in ready_items[1:]:
+                    if last_post_date == 0:
+                        publish_date = str(timenow + interval * 60 * count)
+                    else:
+                        publish_date = str(last_post_date + interval * 60 * count)
                     img_response = requests.get(item['link'])
                     if img_response.ok:
                         vk_photo_response = requests.post(upload_settings['upload_url'], files={'photo': ('file.jpg', BytesIO(img_response.content), 'image/jpg')})
