@@ -1,7 +1,7 @@
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from django.views import View
 
-from instaparser.agents import Agent, Media
+from instaparser.agents import WebAgent, Media
 from instaparser.entities import Account
 
 import datetime
@@ -11,7 +11,7 @@ class InstaGroupView(View):
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             insta_group = kwargs.get('insta_group')
-            agent = Agent()
+            agent = WebAgent()
             account = Account(insta_group)
             agent.update(account)
             media = agent.get_media(account, count=20)
