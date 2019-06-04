@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from insta_vk_main.views import MainPageView, LoginView, LogoutView, UserSettingsView, RegistrationView, SendPosts
+from insta_vk_main.views import MainPageView, LoginView, LogoutView, UserSettingsView, RegistrationView, SendPosts, AcceptRegistration
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,5 +27,6 @@ urlpatterns = [
     path('login', LoginView.as_view(), name='login'),
     path('logout', LogoutView.as_view(), name='logout'),
     path('registration', RegistrationView.as_view(), name='registration'),
-    path('send-posts', SendPosts.as_view(), name='send-posts')
+    path('send-posts', SendPosts.as_view(), name='send-posts'),
+    path('accept_registration/<registration_code>', AcceptRegistration.as_view(), name='accept-registration')
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

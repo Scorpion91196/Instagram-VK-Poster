@@ -1,4 +1,5 @@
 from django.contrib import admin
-from .models import InstaVkUser
+from .models import CustomUser, UserSettings
 # Register your models here.
-admin.site.register(InstaVkUser)
+admin.site.register(CustomUser)
+admin.site.register(UserSettings)

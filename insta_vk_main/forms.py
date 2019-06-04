@@ -1,13 +1,11 @@
 from django import forms
-from django.contrib.auth.models import User
-from .models import InstaVkUser
+from .models import UserSettings, CustomUser
 
 
 class SettingsForm(forms.ModelForm):
-    insta_login = forms.CharField()
 
     class Meta:
-        model = InstaVkUser
+        model = UserSettings
         fields = 'insta_login', 'insta_password', 'vk_login', 'vk_password', 'vk_token', 'vk_app', 'vk_group_id'
         widgets = {
             'insta_password': forms.PasswordInput(),
@@ -22,14 +20,16 @@ class LoginForm(forms.Form):
     def clean(self):
         username = self.cleaned_data['username']
         password = self.cleaned_data['password']
-        if User.objects.filter(username=username).exists():
+        if CustomUser.objects.filter(username=username).exists():
             try:
-                User.objects.get(username=username).user_settings
+                CustomUser.objects.get(username=username).user_settings
             except:
                 raise forms.ValidationError("Пользователя с таким логином не существует")
         else:
             raise forms.ValidationError("Пользователя с таким логином не существует")
-        user = User.objects.get(username=username)
+        user = CustomUser.objects.get(username=username)
+        print(user.password)
+        print(password)
         if not user.check_password(password):
             raise forms.ValidationError("Введен неверный пароль")
 
@@ -39,7 +39,7 @@ class RegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label="Пароль")
 
     class Meta:
-        model = User
+        model = CustomUser
         fields = [
             'username',
             'password',
@@ -57,7 +57,7 @@ class RegistrationForm(forms.ModelForm):
         username = self.cleaned_data['username']
         password = self.cleaned_data['password']
         password_check = self.cleaned_data['password_check']
-        if User.objects.filter(username=username).exists():
+        if CustomUser.objects.filter(username=username).exists():
             raise forms.ValidationError('Пользователь с таким именем уже существует')
         if password != password_check:
             raise forms.ValidationError('Пароли не совпадают')

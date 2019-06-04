@@ -1,16 +1,13 @@
 from django.shortcuts import render, HttpResponse, HttpResponseRedirect
 from django.http import JsonResponse
-from django.contrib.auth.models import User
+from django.core.mail import send_mail
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
 from django.views import View
-from .models import InstaVkUser, InstaGroup
+from .models import CustomUser, UserSettings, InstaGroup
 from .forms import LoginForm, SettingsForm, RegistrationForm
 
-import time
-import datetime
-import vk_api
-import json
-import requests
+import time, hashlib, vk_api, json, requests
 from io import BytesIO
 
 
@@ -18,13 +15,12 @@ class MainPageView(View):
     def get(self, request, *args, **kwargs):
         if request.GET.get('add_insta_group') and request.GET.get('add_insta_group') != '':
             insta_name = request.GET.get('add_insta_group')
-            new_insta_group = InstaGroup.objects.create(name=insta_name)
-            new_insta_group.save()
-            request.user.user_settings.insta_group_list.add(new_insta_group)
+            new_insta_group, created = InstaGroup.objects.get_or_create(name=insta_name)
+            CustomUser.objects.get(username=request.user.username).user_settings.insta_group_list.add(new_insta_group.id)
             return HttpResponseRedirect('/')
 
         if request.user.is_authenticated:
-            user_insta_groups = request.user.user_settings.insta_group_list.all()
+            user_insta_groups = CustomUser.objects.get(username=request.user.username).user_settings.insta_group_list.all()
             context = {
                 'user_insta_groups': user_insta_groups
             }
@@ -35,9 +31,9 @@ class MainPageView(View):
 
 class UserSettingsView(View):
     def get(self, request, *args, **kwargs):
-        user_settings = request.user.user_settings
+        user_settings = CustomUser.objects.get(username=request.user.username).user_settings
         settings_form = SettingsForm()
-        settings_form.user_id = request.user
+        settings_form.user_id = CustomUser.objects.get(username=request.user.username)
 
         if user_settings.insta_login != 'None' and user_settings.insta_login is not None:
             settings_form.fields['insta_login'].widget.attrs['value'] = user_settings.insta_login
@@ -73,16 +69,17 @@ class UserSettingsView(View):
             settings_form.fields['vk_group_id'].widget.attrs['value'] = user_settings.vk_group_id
         else:
             settings_form.fields['vk_group_id'].widget.attrs['value'] = ''
-
+        user_insta_groups = CustomUser.objects.get(username=request.user.username).user_settings.insta_group_list.all()
         context = {
             'user_settings': user_settings,
-            'settings_form': settings_form
+            'settings_form': settings_form,
+            'user_insta_groups': user_insta_groups
         }
         return render(request, 'settings.html', context)
 
     def post(self, request, *args, **kwargs):
         if SettingsForm.is_valid:
-            user_settings = request.user.user_settings
+            user_settings = CustomUser.objects.get(username=request.user.username).user_settings
             user_settings.insta_login = request.POST.get('insta_login')
             user_settings.insta_password = request.POST.get('insta_password')
             user_settings.vk_login = request.POST.get('vk_login')
@@ -218,12 +215,38 @@ class RegistrationView(View):
             username = request.POST.get('username')
             password = request.POST.get('password')
             email = request.POST.get('email')
-            new_user = User.objects.create_user(username, email, password)
-            new_user.save()
-            new_insta_vk_user = InstaVkUser.objects.create(user=new_user)
-            new_insta_vk_user.save()
-            return render(request, 'successful_registration.html')
+            salt = hashlib.sha3_256('python'.encode('utf-8')).hexdigest()
+            register_code = hashlib.sha3_256(username.encode('utf-8')).hexdigest() + salt
+            if request.META['REMOTE_HOST']:
+                register_url = 'http://' + request.META['REMOTE_HOST'] + '/accept_registration/' + str(register_code)
+                print(register_url)
+            elif request.META['REMOTE_ADDR']:
+                register_url = 'http://' + request.META['REMOTE_ADDR'] + '/accept_registration/' + str(register_code)
+                print(register_url)
+            CustomUser.objects.create_user(username, email, password, is_active=False, register_code=register_code)
+            message = 'Для подтверждения регистрации перейдите по ссылке: ' + register_url
+            send_mail(
+                'Подтверждение регистрации',
+                message,
+                'jiumoh2011@yandex.ru',
+                [email],
+                fail_silently=False
+            )
+            return render(request, 'registration_email_access.html')
         context = {
             'registration_form': form
         }
         return render(request, 'registration.html', context)
+
+
+class AcceptRegistration(View):
+    def get(self, request, *args, **kwargs):
+        registration_code = kwargs.get('registration_code')
+        try:
+            user = CustomUser.objects.get(register_code=registration_code, is_active=False)
+            user.is_active = True
+            user.save()
+            UserSettings.objects.create(user=user)
+            return render(request, 'successful_registration.html')
+        except ObjectDoesNotExist:
+            return HttpResponseRedirect('/')

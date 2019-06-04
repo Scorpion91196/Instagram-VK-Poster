@@ -32,7 +32,7 @@
     <h4>Список групп</h4>
     <div class="sidebar">
         <ul>
-            {% for insta_group in request.user.user_settings.insta_group_list.all %}
+            {% for insta_group in user_insta_groups %}
             <li class="sidebar-item"><a class="btn btn-primary" href="/insta-group/{{ insta_group.name }}">{{ insta_group.name }}</a></li>
             {% endfor %}
         </ul>
