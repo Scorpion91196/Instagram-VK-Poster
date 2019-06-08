@@ -93,7 +93,7 @@ class UserSettingsView(View):
 
 class SendPosts(View):
     def post(self, request, *args, **kwargs):
-        user_settings = request.user.user_settings
+        user_settings = CustomUser.objects.get(username=request.user.username).user_settings
         ready_items = json.loads(self.request.POST.get('ready_items'))
         first_post_now = json.loads(self.request.POST.get('first_post_now'))
         interval = json.loads(self.request.POST.get('interval'))

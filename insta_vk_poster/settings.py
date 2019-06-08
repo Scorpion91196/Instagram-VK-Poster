@@ -87,8 +87,8 @@ DATABASES = {
 EMAIL_USE_SSL = True
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465
-EMAIL_HOST_USER = 'email@mail.ru'
-EMAIL_HOST_PASSWORD = 'emailpassword'
+EMAIL_HOST_USER = 'jiumoh2011@yandex.ru'
+EMAIL_HOST_PASSWORD = 'vfrcbvrfHarlequin91196'
 
 
 # Password validation

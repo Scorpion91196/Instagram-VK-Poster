@@ -1,3 +1,14 @@
+@keyframes loading {
+from {
+    left: 0;
+}
+    50% {
+        left: 80%;
+    }
+to {
+    left: 0;}
+}
+
 html {
     min-height: 100%;
     position: relative;
@@ -194,6 +205,39 @@ label {
 
 .errorlist li {
     color: red;
+}
+.popup-counter {
+    display: none;
+    position: fixed;
+    width: 260px;
+    height: 140px;
+    top: 50%;
+    left: 50%;
+    margin-left: -130px;
+    margin-top: -70px;
+    background-color: #fff;
+    z-index: 5;
+    padding: 25px;
+    box-shadow: 0 0 250px 400px rgba(0,0,0,.75);
+    transition: ease .3s;
+}
+.loading-bar {
+    margin-top: 20px;
+    height: 2px;
+    width: 100%;
+    background-color: #aaaaaa;
+    position: relative;
+}
+.loading-bar .loading-bar-item {
+    position: absolute;
+    width: 20%;
+    height: 4px;
+    top: -1px;
+    background-color: #007bff;
+    animation-name: loading;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease;
 }
 
 .insta-item {

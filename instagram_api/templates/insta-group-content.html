@@ -35,6 +35,11 @@
 {% endfor %}
 </div>
 
+    <div class="popup-counter">
+    <p>Постим...</p>
+    <div class="loading-bar"><span class="loading-bar-item"></span></div>
+    </div>
+
 {% endblock %}
 
 {% block custom_js %}
@@ -87,6 +92,7 @@
             }
 
             if (ready_items.length){
+                $(".popup-counter").fadeIn();
                 let first_post_now = $('#first_post_now').prop('checked');
                 let interval = $('#interval').val();
                 let prepared_data = {
@@ -99,6 +105,12 @@
                     dataType: 'json',
                     data: prepared_data,
                     method: 'POST',
+                    success: function () {
+                        $(".popup-counter p").text("Успешно завершено");
+                        setTimeout(function () {
+                            $(".popup-counter").fadeOut();
+                        },1000);
+                    }
                 })
             }
             else {
